@@ -1,0 +1,31 @@
+{% extends 'legal/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Calendar" %} - {% trans "Legal CRM" %}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">{% trans "Calendar" %} - {{ month }}</h1>
+<div class="row row-cols-1 row-cols-md-2 g-3">
+    {% for day, deadlines in grouped_deadlines.items %}
+    <div class="col">
+        <div class="card">
+            <div class="card-header">{{ day|date:"SHORT_DATE_FORMAT" }}</div>
+            <ul class="list-group list-group-flush">
+                {% for deadline in deadlines %}
+                <li class="list-group-item">
+                    <strong>{{ deadline.case.title }}</strong><br>
+                    {{ deadline.title }} - {{ deadline.due_date|time:"H:i" }}
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">{% trans "No deadlines." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col">
+        <div class="alert alert-info">{% trans "No deadlines this month." %}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

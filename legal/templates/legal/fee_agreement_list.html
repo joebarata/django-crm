@@ -1,0 +1,41 @@
+{% extends 'legal/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Fee agreements" %} - {% trans "Legal CRM" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">{% trans "Fee agreements" %}</h1>
+    <a href="{% url 'legal:fee_agreement_add' %}" class="btn btn-primary">{% trans "Add agreement" %}</a>
+</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>{% trans "Contract" %}</th>
+            <th>{% trans "Case" %}</th>
+            <th>{% trans "Client" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Value" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for agreement in agreements %}
+        <tr>
+            <td>{{ agreement.contract_number }}</td>
+            <td><a href="{% url 'legal:case_detail' agreement.case.pk %}">{{ agreement.case.title }}</a></td>
+            <td>{{ agreement.client.display_name }}</td>
+            <td>{{ agreement.get_fee_type_display }}</td>
+            <td>R$ {{ agreement.total_value|floatformat:2 }}</td>
+            <td>{{ agreement.get_status_display }}</td>
+            <td class="text-end"><a href="{% url 'legal:fee_agreement_edit' agreement.pk %}" class="btn btn-sm btn-outline-secondary">{% trans "Edit" %}</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="text-center text-muted">{% trans "No fee agreements." %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

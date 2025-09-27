@@ -114,7 +114,8 @@ INSTALLED_APPS = [
     'chat.apps.ChatConfig',
     'voip',
     'common.apps.CommonConfig',
-    'settings'
+    'settings',
+    'legal.apps.LegalConfig',
 ]
 
 MIDDLEWARE = [
