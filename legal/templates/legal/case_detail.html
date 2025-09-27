@@ -1,0 +1,172 @@
+{% extends 'legal/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ case.title }} - {% trans "Legal CRM" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3">{{ case.title }}</h1>
+        <p class="text-muted">{{ case.number }} • {{ case.court }} • {{ case.get_status_display }}</p>
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'legal:case_edit' case.pk %}" class="btn btn-outline-secondary">{% trans "Edit" %}</a>
+        <a href="{% url 'legal:document_add' case.pk %}" class="btn btn-outline-primary">{% trans "Upload document" %}</a>
+        <a href="{% url 'legal:timeline_add' case.pk %}" class="btn btn-outline-primary">{% trans "Add timeline" %}</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">{% trans "Process timeline" %}</h2>
+                <a href="{% url 'legal:timeline_add' case.pk %}" class="btn btn-sm btn-primary">{% trans "Add" %}</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for item in timeline %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ item.get_entry_type_display }}</strong>
+                        <span class="text-muted">{{ item.occurred_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+                    </div>
+                    <p class="mb-1">{{ item.summary }}</p>
+                    <p class="text-muted small mb-0">{{ item.description|default:"" }}</p>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">{% trans "No timeline entries yet." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">{% trans "Documents" %}</h2>
+                <a href="{% url 'legal:document_add' case.pk %}" class="btn btn-sm btn-primary">{% trans "Upload" %}</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for document in documents %}
+                <li class="list-group-item">
+                    <strong>{{ document.title }}</strong>
+                    <span class="badge text-bg-secondary">{{ document.get_document_type_display }}</span>
+                    <div class="text-muted small">
+                        {% trans "Version" %}: {{ document.version }} • {{ document.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">{% trans "No documents uploaded." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">{% trans "Deadlines" %}</h2>
+                <a href="{% url 'legal:deadline_add' case.pk %}" class="btn btn-sm btn-primary">{% trans "Add" %}</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for deadline in deadlines %}
+                <li class="list-group-item">
+                    <strong>{{ deadline.title }}</strong>
+                    <div class="text-muted small">{{ deadline.due_date|date:"SHORT_DATETIME_FORMAT" }}</div>
+                    {% if deadline.is_overdue %}<span class="badge text-bg-danger">{% trans "Overdue" %}</span>{% endif %}
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">{% trans "No deadlines registered." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">{% trans "Fee agreements" %}</h2>
+                <a href="{% url 'legal:fee_agreement_add' %}?case={{ case.pk }}" class="btn btn-sm btn-primary">{% trans "Add" %}</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for agreement in fee_agreements %}
+                <li class="list-group-item">
+                    <strong>{{ agreement.contract_number }}</strong><br>
+                    {{ agreement.get_fee_type_display }} - R$ {{ agreement.total_value|floatformat:2 }}
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">{% trans "No agreements." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">{% trans "Intelligence" %}</h2>
+            </div>
+            <div class="card-body">
+                {% for insight in insights %}
+                <div class="mb-3">
+                    <strong>{{ insight.captured_at|date:"SHORT_DATE_FORMAT" }}</strong>
+                    <div class="small text-muted">
+                        {% trans "Win probability" %}: {{ insight.win_probability }}%<br>
+                        {% trans "Average duration" %}: {{ insight.average_duration_days }} {% trans "days" %}<br>
+                        {% trans "Revenue forecast" %}: R$ {{ insight.revenue_forecast|floatformat:2 }}
+                    </div>
+                    <p class="small">{{ insight.notes }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted">{% trans "No insights available." %}</p>
+                {% endfor %}
+                <a href="{% url 'legal:insight_add' case.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Add insight" %}</a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">{% trans "Automation" %}</h2>
+            </div>
+            <div class="card-body">
+                {% for rule in automation_rules %}
+                <div class="mb-2">
+                    <strong>{{ rule.name }}</strong>
+                    <div class="small text-muted">{{ rule.trigger }} → {{ rule.action }}</div>
+                </div>
+                {% empty %}
+                <p class="text-muted">{% trans "No automation rules." %}</p>
+                {% endfor %}
+                <a href="{% url 'legal:automation_add' case.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Add rule" %}</a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">{% trans "Access control" %}</h2>
+            </div>
+            <div class="card-body">
+                {% for access in access_rules %}
+                <div class="mb-2">
+                    <strong>{{ access.user }}</strong>
+                    <div class="small text-muted">{{ access.get_role_display }}{% if access.expires_at %} • {{ access.expires_at|date:"SHORT_DATE_FORMAT" }}{% endif %}</div>
+                </div>
+                {% empty %}
+                <p class="text-muted">{% trans "No access rules." %}</p>
+                {% endfor %}
+                <a href="{% url 'legal:access_add' case.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Add access" %}</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">{% trans "Integrations" %}</h2>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for event in integration_events %}
+                <li class="list-group-item">
+                    <strong>{{ event.source.name }}</strong><br>
+                    {{ event.occurred_at|date:"SHORT_DATETIME_FORMAT" }}
+                    {% if event.external_reference %}<div class="small text-muted">{{ event.external_reference }}</div>{% endif %}
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">{% trans "No integration events." %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

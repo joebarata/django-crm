@@ -1,0 +1,57 @@
+{% extends 'legal/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Cases" %} - {% trans "Legal CRM" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">{% trans "Cases" %}</h1>
+    <div class="btn-group" role="group">
+        <a href="{% url 'legal:case_list' %}" class="btn btn-outline-secondary">{% trans "All" %}</a>
+        <a href="{% url 'legal:case_list' %}?status=open" class="btn btn-outline-secondary">{% trans "Open" %}</a>
+        <a href="{% url 'legal:case_list' %}?status=closed" class="btn btn-outline-secondary">{% trans "Closed" %}</a>
+    </div>
+    <a href="{% url 'legal:case_add' %}" class="btn btn-primary">{% trans "Add case" %}</a>
+</div>
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Number" %}</th>
+            <th>{% trans "Clients" %}</th>
+            <th>{% trans "Court" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Opened" %}</th>
+            <th>{% trans "Responsible" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for case in cases %}
+        <tr>
+            <td><a href="{% url 'legal:case_detail' case.pk %}">{{ case.title }}</a></td>
+            <td>{{ case.number }}</td>
+            <td>
+                {% for client in case.clients.all %}
+                    <span class="badge text-bg-light">{{ client.display_name }}</span>
+                {% empty %}
+                    <span class="text-muted">{% trans "No clients" %}</span>
+                {% endfor %}
+            </td>
+            <td>{{ case.court }}</td>
+            <td><span class="badge text-bg-secondary">{{ case.get_status_display }}</span></td>
+            <td>{{ case.opened_at|date:"SHORT_DATE_FORMAT" }}</td>
+            <td>{{ case.responsible_attorney|default:"-" }}</td>
+            <td class="text-end">
+                <a href="{% url 'legal:case_edit' case.pk %}" class="btn btn-sm btn-outline-secondary">{% trans "Edit" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="text-center text-muted">{% trans "No cases registered." %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include 'legal/pagination.html' %}
+{% endblock %}

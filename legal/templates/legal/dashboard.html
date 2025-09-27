@@ -1,0 +1,100 @@
+{% extends 'legal/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Dashboard" %} - {% trans "Legal CRM" %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% trans "Dashboard" %}</h1>
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">{% trans "Open cases" %}</h5>
+                <p class="display-6">{{ open_cases }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">{% trans "Overdue deadlines" %}</h5>
+                <p class="display-6">{{ overdue_deadlines|length }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h5 class="card-title">{% trans "Forecasted revenue" %}</h5>
+                <p class="display-6">R$ {{ revenue_forecast|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-info">
+            <div class="card-body">
+                <h5 class="card-title">{% trans "Win rate" %}</h5>
+                <p class="display-6">{{ win_rate }}%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h2 class="h4">{% trans "Upcoming hearings" %}</h2>
+        <ul class="list-group">
+            {% for item in upcoming_hearings %}
+            <li class="list-group-item">
+                <strong>{{ item.case.title }}</strong><br>
+                {{ item.occurred_at|date:"SHORT_DATETIME_FORMAT" }} - {{ item.summary }}
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">{% trans "No upcoming hearings." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h4">{% trans "Pending deadlines" %}</h2>
+        <ul class="list-group">
+            {% for item in pending_deadlines %}
+            <li class="list-group-item">
+                <strong>{{ item.case.title }}</strong><br>
+                {{ item.due_date|date:"SHORT_DATETIME_FORMAT" }} - {{ item.title }}
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">{% trans "No pending deadlines." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h2 class="h4">{% trans "Top clients" %}</h2>
+        <ul class="list-group">
+            {% for client in top_clients %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ client.client__display_name }}
+                <span class="badge bg-primary">R$ {{ client.total|floatformat:2 }}</span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">{% trans "No financial data yet." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h4">{% trans "Overdue deadlines" %}</h2>
+        <ul class="list-group">
+            {% for item in overdue_deadlines %}
+            <li class="list-group-item list-group-item-danger">
+                <strong>{{ item.case.title }}</strong><br>
+                {{ item.due_date|date:"SHORT_DATETIME_FORMAT" }} - {{ item.title }}
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">{% trans "No overdue deadlines." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
